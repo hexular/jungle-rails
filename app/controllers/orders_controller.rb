@@ -38,11 +38,11 @@ class OrdersController < ApplicationController
 
   def create_order(stripe_charge)
     order = Order.new(
-      email: params[:stripeEmail],
+      email: current_user.email,
       total_cents: cart_subtotal_cents,
       stripe_charge_id: stripe_charge.id, # returned by stripe
     )
-
+    
     enhanced_cart.each do |entry|
       product = entry[:product]
       quantity = entry[:quantity]
@@ -54,7 +54,9 @@ class OrdersController < ApplicationController
       )
     end
     order.save!
+    OrderReceipt.receipt(order).deliver_now
     order
+    
   end
 
 end
