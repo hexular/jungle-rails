@@ -6,6 +6,8 @@ RSpec.feature "Visitor navigates to home page", type: :feature, js: true do
   before :each do
     @category = Category.create! name: 'Apparel'
 
+    @user = User.create!(name: "Dan", email: "d@d.com", password: "123", password_confirmation: "123")
+
     10.times do |n|
       @category.products.create!(
         name:  Faker::Hipster.sentence(3),
@@ -18,15 +20,25 @@ RSpec.feature "Visitor navigates to home page", type: :feature, js: true do
     visit root_path
   end
 
-  scenario "They add an item to cart" do
+  scenario "They log in" do
     # ACT
-    page.first('article.product').click_button('Add')
+    page.click_link('Login')
     # DEBUG
     sleep 1
+    
+    fill_in 'email', with: @user.email
+    sleep 1
 
-    # save_screenshot
+    fill_in 'password', with: @user.password
+    sleep 1
+    save_screenshot('login-filled-out.png')
+
+    click_on 'Submit'
+    sleep 1
+
 
     # VERIFY
-    expect(page).to have_text 'My Cart (1)'
+    save_screenshot('logged-in.png')
+    expect(page).to have_text 'Dan'
   end
 end
